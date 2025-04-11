@@ -1,13 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FCUB CGPA Calculator - Calculate your semester GPA and overall CGPA for FCUB CSE Program" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="color-scheme" content="light dark" />
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="FCUB CGPA Calculator" />
+    <meta property="og:description" content="Calculate your semester GPA and overall CGPA for FCUB CSE Program" />
+    <meta property="og:image" content="/icons/og-image.webp" />
+    
+    <!-- PWA Assets -->
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <title>FCUB CGPA Calculator</title>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+    
+    <!-- No JavaScript Fallback -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; max-width: 600px; margin: 0 auto;">
+        <h1>JavaScript is Required</h1>
+        <p>
+          This CGPA Calculator application requires JavaScript to function.
+          Please enable JavaScript in your browser settings and reload the page.
+        </p>
+      </div>
+    </noscript>
   </body>
 </html>
