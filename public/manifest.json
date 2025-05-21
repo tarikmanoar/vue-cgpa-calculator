@@ -36,7 +36,7 @@
   "shortcuts": [
     {
       "name": "Semester GPA",
-      "url": "/semester-gpa",
+      "url": "/",
       "icons": [
         {
           "src": "/icons/shortcut-semester.png",

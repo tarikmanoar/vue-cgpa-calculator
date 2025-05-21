@@ -28,12 +28,12 @@
           <ul class="flex items-center space-x-2 sm:space-x-4">
             <li>
               <router-link 
-                to="/semester-gpa" 
+                to="/" 
                 class="px-3 py-2 rounded-lg transition-colors duration-150"
                 :class="{ 
                   'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode,
                   'hover:bg-gray-700 focus:bg-gray-700': store.darkMode,
-                  'bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700': $route.path === '/semester-gpa'
+                  'bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700': $route.path === '/'
                 }"
                 active-class="bg-blue-600 text-white"
               >

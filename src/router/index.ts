@@ -3,10 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    redirect: '/semester-gpa'
-  },
-  {
-    path: '/semester-gpa',
     name: 'SemesterGPA',
     component: () => import('@/views/SemesterGPA.vue'),
     meta: { title: 'Semester GPA Calculator' }
