@@ -321,18 +321,20 @@
           class="rounded-xl shadow-lg p-4 sm:p-6 transition-all duration-200 transform hover:shadow-xl" 
           :class="{ 'bg-white': !store.darkMode, 'bg-gray-800': store.darkMode }"
         >
-          <transition 
-            name="route-change" 
-            mode="out-in"
-            enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 transform translate-y-4"
-            enter-to-class="opacity-100 transform translate-y-0"
-            leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100 transform translate-y-0"
-            leave-to-class="opacity-0 transform -translate-y-4"
-          >
-            <router-view />
-          </transition>
+          <router-view v-slot="{ Component }">
+            <transition 
+              name="route-change" 
+              mode="out-in"
+              enter-active-class="transition-all duration-300 ease-out"
+              enter-from-class="opacity-0 transform translate-y-4"
+              enter-to-class="opacity-100 transform translate-y-0"
+              leave-active-class="transition-all duration-200 ease-in"
+              leave-from-class="opacity-100 transform translate-y-0"
+              leave-to-class="opacity-0 transform -translate-y-4"
+            >
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </div>
       </div>
     </main>

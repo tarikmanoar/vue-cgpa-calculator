@@ -60,7 +60,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
   const isOffline = ref(false)
   const pendingSync = ref(false)
   const activeDepartmentId = ref<DepartmentId>('cse') // Default to CSE
-  const isFirstRun = ref(false) // Track if this is first run - defaults to false, set to true if no saved data
+  const isFirstRun = ref(true) // Track if this is first run - will be set to false after loadData if department is saved
   
   // Computed: Get active department
   const activeDepartment = computed<Department>(() => {

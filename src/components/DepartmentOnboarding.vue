@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useCGPAStore } from '@/stores/cgpa'
 import { departmentList } from '@/data/departments'
 import type { DepartmentId } from '@/data/departments'
@@ -111,14 +111,14 @@ const store = useCGPAStore()
 const selectedDept = ref<DepartmentId | null>(null)
 const showOnboarding = ref(false)
 
-onMounted(() => {
-  // Show onboarding only on first run
-  if (store.isFirstRun) {
+// Watch for isFirstRun changes after loadData() completes
+watch(() => store.isFirstRun, (isFirstRun) => {
+  if (isFirstRun && !showOnboarding.value) {
     showOnboarding.value = true
     // Set default department selection to CSE
     selectedDept.value = 'cse'
   }
-})
+}, { immediate: true })
 
 const completeOnboarding = async () => {
   if (selectedDept.value) {

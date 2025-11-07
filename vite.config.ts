@@ -13,22 +13,22 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['icons/favicon.ico', 'icons/favicon.png', 'icons/favicon.svg'],
       manifest: {
         name: 'FCUB CGPA Calculator',
         short_name: 'CGPA Calc',
-        description: 'FCUB CSE Program CGPA Calculator',
+        description: 'FCUB CGPA Calculator - Multi-department GPA calculator for Bangladesh university students',
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {
-            src: 'icons/pwa-192x192.png',
+            src: 'icons/android/android-launchericon-192-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'icons/pwa-512x512.png',
+            src: 'icons/android/android-launchericon-512-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
