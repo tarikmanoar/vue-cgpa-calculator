@@ -60,7 +60,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
   const isOffline = ref(false)
   const pendingSync = ref(false)
   const activeDepartmentId = ref<DepartmentId>('cse') // Default to CSE
-  const isFirstRun = ref(true) // Track if this is first run
+  const isFirstRun = ref(false) // Track if this is first run - defaults to false, set to true if no saved data
   
   // Computed: Get active department
   const activeDepartment = computed<Department>(() => {
@@ -201,12 +201,17 @@ export const useCGPAStore = defineStore('cgpa', () => {
       const savedDepartment = await db.get('settings', 'activeDepartment')
       if (savedDepartment?.value) {
         activeDepartmentId.value = savedDepartment.value as DepartmentId
+        // If we have a saved department, it's not the first run
+        isFirstRun.value = false
+      } else {
+        // No saved department means this is the first run
+        isFirstRun.value = true
       }
       
-      // Load first-run status
+      // Also check the explicit isFirstRun flag (for backwards compatibility)
       const savedFirstRun = await db.get('settings', 'isFirstRun')
-      if (savedFirstRun?.value !== undefined) {
-        isFirstRun.value = savedFirstRun.value as boolean
+      if (savedFirstRun?.value === false) {
+        isFirstRun.value = false
       }
       
       // Load course grades
