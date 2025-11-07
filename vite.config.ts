@@ -12,29 +12,141 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
-      registerType: 'autoUpdate',
-      includeAssets: ['icons/favicon.ico', 'icons/favicon.png', 'icons/favicon.svg'],
+      registerType: 'prompt',
+      injectRegister: 'auto',
+      includeAssets: ['icons/favicon.ico', 'icons/favicon.png', 'icons/favicon.svg', 'icons/android/*.png'],
       manifest: {
-        name: 'FCUB CGPA Calculator',
-        short_name: 'CGPA Calc',
-        description: 'FCUB CGPA Calculator - Multi-department GPA calculator for Bangladesh university students',
+        name: 'FCUB CGPA Calculator - Multi-Department GPA Calculator',
+        short_name: 'FCUB CGPA',
+        description: 'Offline-first CGPA calculator for Bangladesh university students. Supports 8 departments with semester GPA calculation, overall CGPA tracking, and performance analytics.',
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait-primary',
+        scope: '/',
+        start_url: '/',
+        lang: 'en-US',
+        dir: 'ltr',
+        categories: ['education', 'productivity', 'utilities'],
+        prefer_related_applications: false,
         icons: [
+          {
+            src: 'icons/android/android-launchericon-48-48.png',
+            sizes: '48x48',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/android/android-launchericon-72-72.png',
+            sizes: '72x72',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/android/android-launchericon-96-96.png',
+            sizes: '96x96',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/android/android-launchericon-144-144.png',
+            sizes: '144x144',
+            type: 'image/png',
+            purpose: 'any'
+          },
           {
             src: 'icons/android/android-launchericon-192-192.png',
             sizes: '192x192',
             type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'icons/android/android-launchericon-512-512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'any'
           },
+          {
+            src: 'icons/android/android-launchericon-192-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: 'icons/android/android-launchericon-512-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
         ],
+        shortcuts: [
+          {
+            name: 'Calculate Semester GPA',
+            short_name: 'Semester GPA',
+            description: 'Calculate GPA for a specific semester',
+            url: '/',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' }]
+          },
+          {
+            name: 'Calculate Overall CGPA',
+            short_name: 'Overall CGPA',
+            description: 'Calculate cumulative GPA across all semesters',
+            url: '/overall-cgpa',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' }]
+          },
+          {
+            name: 'View Statistics',
+            short_name: 'Statistics',
+            description: 'View performance analytics and trends',
+            url: '/statistics',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' }]
+          },
+          {
+            name: 'Settings',
+            short_name: 'Settings',
+            description: 'Change department and preferences',
+            url: '/settings',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' }]
+          }
+        ]
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      }
     }),
   ],
   resolve: {

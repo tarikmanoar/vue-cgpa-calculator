@@ -1,33 +1,60 @@
 {
-  "name": "FCUB CGPA Calculator",
-  "short_name": "CGPA Calc",
-  "description": "A GPA and CGPA calculator for FCUB CSE Program",
+  "name": "FCUB CGPA Calculator - Multi-Department GPA Calculator",
+  "short_name": "FCUB CGPA",
+  "description": "Offline-first CGPA calculator for Bangladesh university students. Supports 8 departments with semester GPA calculation, overall CGPA tracking, and performance analytics.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
-  "orientation": "any",
+  "orientation": "portrait-primary",
+  "lang": "en-US",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/icons/pwa-192x192.png",
+      "src": "/icons/android/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/android/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/android/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/android/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/android/android-launchericon-192-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/pwa-512x512.png",
+      "src": "/icons/android/android-launchericon-512-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/pwa-maskable-192x192.png",
+      "src": "/icons/android/android-launchericon-192-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/pwa-maskable-512x512.png",
+      "src": "/icons/android/android-launchericon-512-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -35,49 +62,58 @@
   ],
   "shortcuts": [
     {
-      "name": "Semester GPA",
+      "name": "Calculate Semester GPA",
+      "short_name": "Semester GPA",
+      "description": "Calculate GPA for a specific semester",
       "url": "/",
       "icons": [
         {
-          "src": "/icons/shortcut-semester.png",
+          "src": "/icons/android/android-launchericon-96-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     },
     {
-      "name": "Overall CGPA",
+      "name": "Calculate Overall CGPA",
+      "short_name": "Overall CGPA",
+      "description": "Calculate cumulative GPA across all semesters",
       "url": "/overall-cgpa",
       "icons": [
         {
-          "src": "/icons/shortcut-overall.png",
+          "src": "/icons/android/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "View Statistics",
+      "short_name": "Statistics",
+      "description": "View performance analytics and trends",
+      "url": "/statistics",
+      "icons": [
+        {
+          "src": "/icons/android/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Change department and preferences",
+      "url": "/settings",
+      "icons": [
+        {
+          "src": "/icons/android/android-launchericon-96-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
       ]
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/screenshot-1.webp",
-      "sizes": "1280x720",
-      "type": "image/webp",
-      "form_factor": "wide",
-      "label": "Semester GPA Calculator"
-    },
-    {
-      "src": "/screenshots/screenshot-2.webp",
-      "sizes": "1280x720",
-      "type": "image/webp",
-      "form_factor": "wide",
-      "label": "Overall CGPA Calculator"
-    },
-    {
-      "src": "/screenshots/screenshot-mobile.webp",
-      "sizes": "750x1334",
-      "type": "image/webp",
-      "form_factor": "narrow",
-      "label": "Mobile Semester GPA Calculator"
-    }
-  ]
+  "categories": ["education", "productivity", "utilities"],
+  "prefer_related_applications": false
 }
