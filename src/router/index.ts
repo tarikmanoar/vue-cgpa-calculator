@@ -26,6 +26,12 @@ const routes = [
     meta: { title: 'Data Management' }
   },
   {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/Settings.vue'),
+    meta: { title: 'Settings' }
+  },
+  {
     path: '/developer',
     name: 'Developer',
     component: () => import('@/views/Developer.vue'),

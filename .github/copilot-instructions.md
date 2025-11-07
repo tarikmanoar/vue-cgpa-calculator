@@ -1,9 +1,11 @@
 # FCUB CGPA Calculator - AI Coding Agent Instructions
 
 ## Project Overview
-A Progressive Web App (PWA) for calculating semester GPAs and cumulative CGPA for FCUB CSE Program students in Bangladesh. Built with Vue 3 Composition API, TypeScript, Tailwind CSS v4, and offline-first architecture using IndexedDB and Workbox.
+A Progressive Web App (PWA) for calculating semester GPAs and cumulative CGPA for FCUB students in Bangladesh across **8 departments**. Built with Vue 3 Composition API, TypeScript, Tailwind CSS v4, and offline-first architecture using IndexedDB and Workbox.
 
 ### Key Features for Bangladesh Students
+- **Multi-Department Support**: 8 departments (CSE, EEE, Public Health, Law, Business, English, Sociology, Agriculture)
+- **Department Switching**: Users can select and switch departments with curriculum auto-update
 - **Bangladesh Grading System**: Automatic classification (First Class with Distinction, First Class, Second Class, Third Class, Pass)
 - **Required GPA Calculator**: Calculate what GPA is needed in remaining semesters to achieve target CGPA
 - **Performance Analytics**: Grade distribution, semester trends, and performance statistics
@@ -18,14 +20,30 @@ A Progressive Web App (PWA) for calculating semester GPAs and cumulative CGPA fo
 - Two primary data types: `courseGrades` (course code → grade mappings) and `semesterGPAs` (semester → GPA mappings)
 - Offline-first: All mutations to store trigger IndexedDB writes with error handling that sets `pendingSync` flag
 
+### Department System (New!)
+```typescript
+// Department data in src/data/departments/
+activeDepartmentId: ref<DepartmentId>('cse') // Current selected department
+activeDepartment: computed(() => departments[activeDepartmentId.value])
+courseData: computed(() => activeDepartment.value.courseData) // Dynamic per department
+semesterCredits: computed(() => activeDepartment.value.semesterCredits)
+totalCredits: computed(() => activeDepartment.value.totalCredits)
+```
+
+**Department Structure**:
+- Each department has separate file in `src/data/departments/`
+- Contains: id, name, shortName, totalCredits, totalSemesters, courseData, semesterCredits
+- 8 departments supported: CSE (full data), others (sample data for semesters 1-2)
+- Department selection stored in IndexedDB `settings` object store
+
 ### Critical Data Structures
 ```typescript
-// Hard-coded FCUB CSE curriculum data in cgpa.ts
-courseData: { [semester: 1-8]: Course[] }
-semesterCredits: { '1': 20.50, '2': 23.50, ... }
-GRADES: [{ letter: 'A+', point: 4.00 }, ...]
+// Department-specific curriculum (now dynamic!)
+courseData: computed(() => activeDepartment.value.courseData)
+semesterCredits: computed(() => activeDepartment.value.semesterCredits)
+GRADES: [{ letter: 'A+', point: 4.00 }, ...] // Same across all departments
 ```
-These are **not** user-editable—they represent fixed FCUB CSE program requirements.
+These are **static TypeScript files** loaded at build time—not user-editable at runtime.
 
 ### Bangladesh Grading Classifications
 ```typescript
@@ -42,12 +60,14 @@ getClassification(cgpa: number) => {
 
 ### Component Communication
 - Views consume Pinia store directly—no props drilling
-- `MainLayout.vue` wraps all views and handles global concerns (navigation, theme, offline indicator)
+- `MainLayout.vue` wraps all views and handles global concerns (navigation, theme, offline indicator, onboarding)
+- `DepartmentOnboarding.vue` shows on first run for department selection
 - Route-based views: 
   - `SemesterGPA.vue`: Per-semester calculator with course-level grading
   - `OverallCGPA.vue`: Multi-semester CGPA with semester GPA inputs
   - `Statistics.vue`: Required GPA calculator, classification info, performance stats
   - `DataManagement.vue`: Export, import, and clear data functionality
+  - `Settings.vue`: Department selection and theme preferences
   - `Developer.vue`: Developer profile and contact form
 
 ## Development Workflow
@@ -99,9 +119,10 @@ npm run typecheck        # vue-tsc without emit
 ## Integration Points
 
 ### IndexedDB Schema
-Database: `fcub-cgpa-calculator` (v1)
+Database: `fcub-cgpa-calculator` (v2)
 - Object store: `courseGrades` (keyPath: `id`, stores `{ id: courseCode, grade: string }`)
 - Object store: `semesterGPAs` (keyPath: `semester`, stores `{ semester: number, gpa: number }`)
+- Object store: `settings` (keyPath: `key`, stores `{ key: 'activeDepartment'|'isFirstRun', value: any }`) **(New in v2)**
 
 ### Service Worker Caching
 - Precache: All build assets via `self.__WB_MANIFEST`
@@ -121,19 +142,28 @@ Database: `fcub-cgpa-calculator` (v1)
 4. **Tailwind v4 differences**: Uses `@tailwindcss/vite` plugin, no `tailwind.config.js` imports in PostCSS
 5. **Dark mode**: Theme is controlled by Pinia store + localStorage, not Tailwind's built-in dark mode toggle
 6. **Bangladesh grading**: Use `getClassification()` helper, not custom logic for class determination
+7. **Department data**: Use computed properties (`courseData.value`, `semesterCredits.value`) not static constants
 
 ## File Structure Patterns
 
 ```
 src/
+  data/
+    departments/   # Department data files (NEW!)
+      types.ts           # TypeScript interfaces
+      index.ts           # Export all departments
+      cse.ts             # CSE department (complete)
+      eee.ts, law.ts, etc.  # Other departments
   stores/          # Pinia stores (domain logic, IndexedDB integration)
   views/           # Route-level components (lazy-loaded)
     SemesterGPA.vue      # Per-semester calculator
     OverallCGPA.vue      # Multi-semester CGPA
     Statistics.vue       # Analytics & required GPA calculator
     DataManagement.vue   # Export/import/clear data
+    Settings.vue         # Department & theme settings (NEW!)
     Developer.vue        # Developer profile
   components/
+    DepartmentOnboarding.vue  # First-run modal (NEW!)
     layout/        # App-level layout components (MainLayout)
     ui/            # shadcn-vue components (Reka UI + CVA)
   router/          # Vue Router config

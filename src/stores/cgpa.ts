@@ -4,23 +4,11 @@ import { ref, computed } from 'vue'
 // IDB Database functions
 import { openDB } from 'idb'
 
-interface Course {
-  code: string
-  name: string
-  credits: number
-  grade?: string
-}
-
-interface CourseData {
-  [key: number]: Course[]
-}
+// Import department data
+import { departments, departmentList, type Department, type DepartmentId } from '@/data/departments'
 
 interface SemesterGPAs {
   [key: number]: number
-}
-
-interface SemesterCredits {
-  [key: string]: number
 }
 
 // Define grade points
@@ -39,7 +27,7 @@ const GRADES = [
 
 // Setup IndexedDB
 const DB_NAME = 'fcub-cgpa-calculator'
-const DB_VERSION = 1
+const DB_VERSION = 2 // Increment version for new schema
 
 const initDB = async () => {
   return openDB(DB_NAME, DB_VERSION, {
@@ -52,6 +40,11 @@ const initDB = async () => {
       // Semester GPAs store
       if (!db.objectStoreNames.contains('semesterGPAs')) {
         db.createObjectStore('semesterGPAs', { keyPath: 'semester' })
+      }
+      
+      // Department selection store (new in v2)
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings', { keyPath: 'key' })
       }
     }
   })
@@ -66,123 +59,36 @@ export const useCGPAStore = defineStore('cgpa', () => {
   const courseGrades = ref<{[key: string]: string}>({})
   const isOffline = ref(false)
   const pendingSync = ref(false)
+  const activeDepartmentId = ref<DepartmentId>('cse') // Default to CSE
+  const isFirstRun = ref(true) // Track if this is first run
   
-  // Course data
-  const courseData: CourseData = {
-    1: [
-      { code: 'CSE-111', name: 'Introduction to Computer Systems', credits: 3.00 },
-      { code: 'EEE-111', name: 'Introduction to Digital Electronics', credits: 3.00 },
-      { code: 'EEE-112', name: 'Introduction to Digital Electronics Lab', credits: 1.50 },
-      { code: 'PHY-111', name: 'Physics-I', credits: 3.00 },
-      { code: 'MATH-111', name: 'Linear Algebra & Co-ordinate Geometry', credits: 3.00 },
-      { code: 'GED-111', name: 'Principles of Accounting', credits: 2.00 },
-      { code: 'GED-112', name: 'Bangladesh Studies', credits: 2.00 },
-      { code: 'BANG-111', name: 'Functional Bengali language', credits: 2.00 }
-    ],
-    2: [
-      { code: 'CSE-121', name: 'Structured Programming Using C', credits: 3.00 },
-      { code: 'CSE-122', name: 'Structured Programming Using C Lab', credits: 1.00 },
-      { code: 'CSE-123', name: 'Digital Logic Design', credits: 3.00 },
-      { code: 'CSE-124', name: 'Digital Logic Design Lab', credits: 1.00 },
-      { code: 'EEE-121', name: 'Electronic Device & Circuits', credits: 3.00 },
-      { code: 'EEE-122', name: 'Electronic Device & Circuits lab', credits: 1.50 },
-      { code: 'PHY-121', name: 'Physics-II', credits: 3.00 },
-      { code: 'PHY-122', name: 'Physics-II Lab', credits: 1.00 },
-      { code: 'MATH-121', name: 'Differential and Integral Calculus', credits: 3.00 },
-      { code: 'ENG-121', name: 'Basic English', credits: 3.00 },
-      { code: 'CSE-125', name: 'Viva Voce', credits: 1.00 }
-    ],
-    3: [
-      { code: 'CSE-211', name: 'Data Structures', credits: 3.00 },
-      { code: 'CSE-212', name: 'Data Structures Lab', credits: 1.00 },
-      { code: 'CSE-213', name: 'Discrete Mathematics', credits: 3.00 },
-      { code: 'ED-211', name: 'Engineering Drawing', credits: 1.00 },
-      { code: 'ED-212', name: 'Engineering Drawing Lab', credits: 1.00 },
-      { code: 'CHEM-211', name: 'Chemistry', credits: 3.00 },
-      { code: 'CHEM-212', name: 'Chemistry Lab', credits: 1.00 },
-      { code: 'MATH-211', name: 'Statistical Methods & Probability', credits: 3.00 },
-      { code: 'ENG-211', name: 'Communicative English', credits: 2.00 },
-      { code: 'GED-211', name: 'Principles of Economics', credits: 3.00 }
-    ],
-    4: [
-      { code: 'CSE-221', name: 'Object Oriented Programming', credits: 3.00 },
-      { code: 'CSE-222', name: 'Object Oriented Programming Lab', credits: 1.00 },
-      { code: 'CSE-223', name: 'Algorithm Design and Analysis', credits: 3.00 },
-      { code: 'CSE-224', name: 'Algorithm Design and Analysis Lab', credits: 1.00 },
-      { code: 'CSE-225', name: 'Numerical Methods', credits: 2.00 },
-      { code: 'MATH-221', name: 'Equations & Vector Analysis', credits: 3.00 },
-      { code: 'GED-221', name: 'Law & Ethics in Engineering Practice', credits: 2.00 },
-      { code: 'GED-222', name: 'Social History and World Civilization', credits: 3.00 },
-      { code: 'CSE-226', name: 'Viva Voce', credits: 1.00 }
-    ],
-    5: [
-      { code: 'CSE-311', name: 'Computer Organization & Architecture', credits: 3.00 },
-      { code: 'CSE-312', name: 'Data and Telecommunication', credits: 3.00 },
-      { code: 'CSE-313', name: 'Microprocessor, Microcontroller and Assembly Language', credits: 3.00 },
-      { code: 'CSE-314', name: 'Microprocessor, Microcontroller and Assembly Language Lab', credits: 1.00 },
-      { code: 'CSE-315', name: 'Database Management Systems', credits: 3.00 },
-      { code: 'CSE-316', name: 'Database Management Systems Lab', credits: 1.00 },
-      { code: 'GED-311', name: 'Principles of Management', credits: 2.00 },
-      { code: 'CSE-317', name: 'Elective Course (Section II Minor group)', credits: 3.00 },
-      { code: 'CSE-318', name: 'Elective Course (Section II Minor group)', credits: 3.00 }
-    ],
-    6: [
-      { code: 'CSE-321', name: 'Operating Systems', credits: 3.00 },
-      { code: 'CSE-322', name: 'Operating Systems Lab', credits: 1.00 },
-      { code: 'CSE-323', name: 'Computer Networks', credits: 3.00 },
-      { code: 'CSE-324', name: 'Computer Networks Lab', credits: 1.00 },
-      { code: 'CSE-325', name: 'Software Engineering', credits: 3.00 },
-      { code: 'CSE-326', name: 'Software Engineering Lab', credits: 1.00 },
-      { code: 'CSE-327', name: 'Compiler Design', credits: 3.00 },
-      { code: 'CSE-328', name: 'Compiler Design Lab', credits: 1.00 },
-      { code: 'CSE-329', name: 'Elective Course (Section I Major group)', credits: 3.00 },
-      { code: 'CSE-330', name: 'Viva Voce', credits: 1.00 }
-    ],
-    7: [
-      { code: 'CSE-411', name: 'Simulation and Modeling', credits: 3.00 },
-      { code: 'CSE-412', name: 'Simulation and Modeling Lab', credits: 1.00 },
-      { code: 'CSE-413', name: 'Computer Graphics', credits: 3.00 },
-      { code: 'CSE-414', name: 'Computer Graphics Lab', credits: 1.00 },
-      { code: 'CSE-415', name: 'Artificial Intelligence and Neural Networking', credits: 3.00 },
-      { code: 'CSE-416', name: 'Artificial Intelligence and Neural Networking Lab', credits: 1.00 },
-      { code: 'CSE-417', name: 'E-Commerce and Web Engineering', credits: 3.00 },
-      { code: 'CSE-418', name: 'E-Commerce and Web Engineering Lab', credits: 1.00 },
-      { code: 'CSE-419', name: 'Elective Course (Section I Major group)', credits: 3.00 }
-    ],
-    8: [
-      { code: 'CSE-421', name: 'Digital Signal Processing', credits: 3.00 },
-      { code: 'CSE-422', name: 'Digital Signal Processing Lab', credits: 1.00 },
-      { code: 'CSE-423', name: 'Mobile Application development', credits: 3.00 },
-      { code: 'CSE-424', name: 'Mobile Application development Lab', credits: 1.00 },
-      { code: 'CSE-425', name: 'Elective Course (Section I Major group)', credits: 3.00 },
-      { code: 'CSE-428', name: 'Project Work', credits: 3.00 },
-      { code: 'CSE-429', name: 'Field work and Industrial Tour', credits: 1.00 },
-      { code: 'CSE-430', name: 'Viva Voce', credits: 2.00 }
-    ]
-  }
-
-  // Semester credits
-  const semesterCredits: SemesterCredits = {
-    '1': 20.50,
-    '2': 23.50,
-    '3': 21.00,
-    '4': 19.00,
-    '5': 22.00,
-    '6': 20.00,
-    '7': 19.00,
-    '8': 17.00
-  }
-
-  const semesters = [1, 2, 3, 4, 5, 6, 7, 8]
+  // Computed: Get active department
+  const activeDepartment = computed<Department>(() => {
+    return departments[activeDepartmentId.value]
+  })
+  
+  // Computed: Get course data from active department
+  const courseData = computed(() => activeDepartment.value.courseData)
+  
+  // Computed: Get semester credits from active department
+  const semesterCredits = computed(() => activeDepartment.value.semesterCredits)
+  
+  // Computed: Get total credits from active department
+  const totalCredits = computed(() => activeDepartment.value.totalCredits)
+  
+  // Computed: Get available semesters from active department
+  const semesters = computed(() => {
+    return Array.from({ length: activeDepartment.value.totalSemesters }, (_, i) => i + 1)
+  })
 
   // Computed
   const semesterCourses = computed(() => {
     if (!selectedSemester.value) return []
     
-    return courseData[selectedSemester.value].map(course => ({
+    return courseData.value[selectedSemester.value]?.map(course => ({
       ...course,
       grade: courseGrades.value[course.code] || ''
-    }))
+    })) || []
   })
 
   const calculateSemesterGPA = computed(() => {
@@ -204,22 +110,22 @@ export const useCGPAStore = defineStore('cgpa', () => {
 
   const semesterTotalCredits = computed(() => {
     if (!selectedSemester.value) return 0
-    return semesterCredits[selectedSemester.value.toString()] || 0
+    return semesterCredits.value[selectedSemester.value.toString()] || 0
   })
 
   const calculateCGPA = computed(() => {
     let totalPoints = 0
-    let totalCredits = 0
+    let totalCreditsCount = 0
     
-    semesters.forEach(sem => {
+    semesters.value.forEach((sem: number) => {
       if (semesterGPAs.value[sem]) {
-        const semCredits = semesterCredits[sem.toString()]
+        const semCredits = semesterCredits.value[sem.toString()]
         totalPoints += semesterGPAs.value[sem] * semCredits
-        totalCredits += semCredits
+        totalCreditsCount += semCredits
       }
     })
     
-    return totalCredits ? totalPoints / totalCredits : 0
+    return totalCreditsCount ? totalPoints / totalCreditsCount : 0
   })
 
   // Actions
@@ -291,6 +197,18 @@ export const useCGPAStore = defineStore('cgpa', () => {
     try {
       const db = await initDB()
       
+      // Load department selection
+      const savedDepartment = await db.get('settings', 'activeDepartment')
+      if (savedDepartment?.value) {
+        activeDepartmentId.value = savedDepartment.value as DepartmentId
+      }
+      
+      // Load first-run status
+      const savedFirstRun = await db.get('settings', 'isFirstRun')
+      if (savedFirstRun?.value !== undefined) {
+        isFirstRun.value = savedFirstRun.value as boolean
+      }
+      
       // Load course grades
       const savedGrades = await db.getAll('courseGrades')
       if (savedGrades.length > 0) {
@@ -338,7 +256,23 @@ export const useCGPAStore = defineStore('cgpa', () => {
   }
 
   const getSemesterCredits = (semester: number) => {
-    return semesterCredits[semester.toString()] || 0
+    return semesterCredits.value[semester.toString()] || 0
+  }
+
+  // Set active department
+  const setDepartment = async (departmentId: DepartmentId) => {
+    activeDepartmentId.value = departmentId
+    isFirstRun.value = false
+    
+    // Save to IndexedDB
+    try {
+      const db = await initDB()
+      await db.put('settings', { key: 'activeDepartment', value: departmentId })
+      await db.put('settings', { key: 'isFirstRun', value: false })
+    } catch (error) {
+      console.error('Failed to save department selection:', error)
+      pendingSync.value = true
+    }
   }
 
   // Export all data as JSON
@@ -436,7 +370,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
     let earnedPoints = 0
     
     // Calculate completed credits and earned grade points
-    semesters.forEach(sem => {
+    semesters.value.forEach((sem: number) => {
       if (semesterGPAs.value[sem]) {
         const credits = getSemesterCredits(sem)
         completedCredits += credits
@@ -444,8 +378,8 @@ export const useCGPAStore = defineStore('cgpa', () => {
       }
     })
     
-    const totalCredits = 162 // Total FCUB CSE program credits
-    const remainingCredits = totalCredits - completedCredits
+    const totalProgramCredits = totalCredits.value // Use dynamic total credits
+    const remainingCredits = totalProgramCredits - completedCredits
     
     if (remainingCredits <= 0) {
       return { 
@@ -455,7 +389,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
       }
     }
     
-    const totalRequiredPoints = targetCGPA * totalCredits
+    const totalRequiredPoints = targetCGPA * totalProgramCredits
     const requiredPoints = totalRequiredPoints - earnedPoints
     const requiredGPA = requiredPoints / remainingCredits
     
@@ -502,9 +436,9 @@ export const useCGPAStore = defineStore('cgpa', () => {
 
   // Get semester performance trend
   const getSemesterTrend = computed(() => {
-    return semesters
-      .filter(sem => semesterGPAs.value[sem])
-      .map(sem => ({
+    return semesters.value
+      .filter((sem: number) => semesterGPAs.value[sem])
+      .map((sem: number) => ({
         semester: sem,
         gpa: semesterGPAs.value[sem],
         credits: getSemesterCredits(sem)
@@ -513,7 +447,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
 
   // Calculate GPA statistics
   const getGPAStats = computed(() => {
-    const completedSemesters = semesters.filter(sem => semesterGPAs.value[sem])
+    const completedSemesters = semesters.value.filter((sem: number) => semesterGPAs.value[sem])
     
     if (completedSemesters.length === 0) {
       return {
@@ -525,10 +459,10 @@ export const useCGPAStore = defineStore('cgpa', () => {
       }
     }
     
-    const gpas = completedSemesters.map(sem => semesterGPAs.value[sem])
+    const gpas = completedSemesters.map((sem: number) => semesterGPAs.value[sem])
     const highest = Math.max(...gpas)
     const lowest = Math.min(...gpas)
-    const average = gpas.reduce((a, b) => a + b, 0) / gpas.length
+    const average = gpas.reduce((a: number, b: number) => a + b, 0) / gpas.length
     
     // Calculate trend (improving, declining, stable)
     let trend = 'Stable'
@@ -558,11 +492,19 @@ export const useCGPAStore = defineStore('cgpa', () => {
     courseGrades,
     isOffline,
     pendingSync,
+    activeDepartmentId,
+    isFirstRun,
+    
+    // Department data
+    activeDepartment,
+    departmentList: computed(() => departmentList),
+    departments: computed(() => departments),
     
     // Constants
     courseData,
     semesterCredits,
     semesters,
+    totalCredits,
     GRADES,
     
     // Computed
@@ -576,6 +518,7 @@ export const useCGPAStore = defineStore('cgpa', () => {
     setSemester,
     setGrade,
     setSemesterGPA,
+    setDepartment,
     toggleDarkMode,
     loadData,
     syncPendingData,

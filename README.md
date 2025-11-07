@@ -1,27 +1,38 @@
 # FCUB CGPA Calculator
 
-A Progressive Web Application (PWA) for calculating semester GPAs and overall CGPA for the FCUB CSE Program.
+A Progressive Web Application (PWA) for calculating semester GPAs and overall CGPA for FCUB students across **8 departments**.
 
 ## Features
 
+### Multi-Department Support 🎓
+- **8 Departments**: CSE, EEE, Public Health, Law, Business Administration, English, Sociology, Agriculture
+- **Dynamic Curriculum**: Each department has its own courses, credits, and semester structure
+- **Easy Switching**: Change department anytime from Settings
+- **First-Run Onboarding**: Select your department when you first open the app
+
+### GPA Calculation
 - **Semester GPA Calculator**: Calculate GPA for individual semesters with course-level grade input
 - **Overall CGPA Calculator**: Calculate cumulative GPA across multiple semesters
 - **Bangladesh Grading System**: Automatic classification (First Class with Distinction, First Class, Second Class, Third Class, Pass)
 - **Required GPA Calculator**: Find out what GPA you need in remaining semesters to achieve your target CGPA
-- **Performance Analytics**: 
-  - Grade distribution statistics
-  - Semester performance trends
-  - Highest, lowest, and average GPA tracking
-  - Performance trend analysis (improving, declining, stable)
-- **Data Management**: 
-  - Export your data as JSON for backup
-  - Import data to restore or transfer between devices
-  - Clear all data with confirmation
-- **Developer Profile**: Information about the developer
+
+### Performance Analytics 📊
+- **Grade Distribution**: Visual breakdown of your grades (A+, A, A-, B+, etc.)
+- **Semester Trends**: Track your performance across semesters
+- **Statistics**: Highest, lowest, and average GPA with trend analysis (improving, declining, stable)
+
+### Data Management 💾
+- **Export Data**: Backup your data as JSON file
+- **Import Data**: Restore data or transfer between devices
+- **Clear Data**: Remove all data with two-step confirmation
+- **Privacy First**: All data stored locally on your device
+
+### Modern Features ✨
 - **PWA Support**: Works offline and can be installed on devices
-- **Responsive Design**: Works on all screen sizes
+- **Responsive Design**: Works on all screen sizes (mobile, tablet, desktop)
 - **Accessibility**: WCAG 2.1 AA compliant
 - **Dark/Light Theme**: Support for system preferences and manual toggle
+- **Offline-First**: Full functionality without internet connection
 
 ## Technologies Used
 

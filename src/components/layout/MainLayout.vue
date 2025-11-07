@@ -1,6 +1,9 @@
 <!-- Layout Component with Navigation, Theme Toggle and Skip Link for Accessibility -->
 <template>
   <div class="min-h-screen transition-colors duration-200" :class="{ 'dark': store.darkMode, 'bg-gray-100 text-gray-900': !store.darkMode, 'bg-gray-900 text-gray-100': store.darkMode }">
+    <!-- Department Onboarding Modal -->
+    <DepartmentOnboarding />
+    
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-blue-600 focus:text-white focus:z-50">
       Skip to main content
     </a>
@@ -125,6 +128,25 @@
             </li>
             <li>
               <router-link 
+                to="/settings" 
+                class="px-3 py-2 rounded-lg transition-colors duration-150 relative"
+                :class="{ 
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode,
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode,
+                  'bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700': $route.path === '/settings'
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                <span>Settings</span>
+                <span 
+                  v-if="$route.path === '/settings'" 
+                  class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-400 transition-transform origin-left transform"
+                  :class="{'scale-x-100': $route.path === '/settings', 'scale-x-0': $route.path !== '/settings'}"
+                ></span>
+              </router-link>
+            </li>
+            <li>
+              <router-link 
                 to="/developer" 
                 class="px-3 py-2 rounded-lg transition-colors duration-150 relative"
                 :class="{ 
@@ -241,6 +263,21 @@
             </li>
             <li>
               <router-link 
+                to="/settings" 
+                @click="mobileMenuOpen = false"
+                class="block px-3 py-2 rounded-lg transition-colors duration-150 font-medium"
+                :class="{ 
+                  'bg-blue-600 text-white': $route.path === '/settings',
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode && $route.path !== '/settings',
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode && $route.path !== '/settings',
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                Settings
+              </router-link>
+            </li>
+            <li>
+              <router-link 
                 to="/developer" 
                 @click="mobileMenuOpen = false"
                 class="block px-3 py-2 rounded-lg transition-colors duration-150 font-medium"
@@ -329,6 +366,7 @@
 import { useRoute } from 'vue-router'
 import { useCGPAStore } from '@/stores/cgpa'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
+import DepartmentOnboarding from '@/components/DepartmentOnboarding.vue'
 
 const store = useCGPAStore()
 const route = useRoute()

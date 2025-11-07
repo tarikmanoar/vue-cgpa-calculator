@@ -246,7 +246,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div v-for="(count, grade) in gradeDistribution" :key="grade" 
             class="p-3 rounded-lg text-center transition-all duration-200 hover:scale-105"
-            :class="getGradeColorClass(grade)">
+            :class="getGradeColorClass(String(grade))">
             <p class="text-2xl font-bold">{{ count }}</p>
             <p class="text-sm opacity-75">{{ grade }}</p>
           </div>
