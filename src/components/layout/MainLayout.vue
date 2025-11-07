@@ -87,6 +87,44 @@
             </li>
             <li>
               <router-link 
+                to="/statistics" 
+                class="px-3 py-2 rounded-lg transition-colors duration-150 relative"
+                :class="{ 
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode,
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode,
+                  'bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700': $route.path === '/statistics'
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                <span>Statistics</span>
+                <span 
+                  v-if="$route.path === '/statistics'" 
+                  class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-400 transition-transform origin-left transform"
+                  :class="{'scale-x-100': $route.path === '/statistics', 'scale-x-0': $route.path !== '/statistics'}"
+                ></span>
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/data-management" 
+                class="px-3 py-2 rounded-lg transition-colors duration-150 relative"
+                :class="{ 
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode,
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode,
+                  'bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700': $route.path === '/data-management'
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                <span>Data</span>
+                <span 
+                  v-if="$route.path === '/data-management'" 
+                  class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-400 transition-transform origin-left transform"
+                  :class="{'scale-x-100': $route.path === '/data-management', 'scale-x-0': $route.path !== '/data-management'}"
+                ></span>
+              </router-link>
+            </li>
+            <li>
+              <router-link 
                 to="/developer" 
                 class="px-3 py-2 rounded-lg transition-colors duration-150 relative"
                 :class="{ 
@@ -169,6 +207,36 @@
                 active-class="bg-blue-600 text-white"
               >
                 Overall CGPA
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/statistics" 
+                @click="mobileMenuOpen = false"
+                class="block px-3 py-2 rounded-lg transition-colors duration-150 font-medium"
+                :class="{ 
+                  'bg-blue-600 text-white': $route.path === '/statistics',
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode && $route.path !== '/statistics',
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode && $route.path !== '/statistics',
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                Statistics
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/data-management" 
+                @click="mobileMenuOpen = false"
+                class="block px-3 py-2 rounded-lg transition-colors duration-150 font-medium"
+                :class="{ 
+                  'bg-blue-600 text-white': $route.path === '/data-management',
+                  'hover:bg-gray-200 focus:bg-gray-200': !store.darkMode && $route.path !== '/data-management',
+                  'hover:bg-gray-700 focus:bg-gray-700': store.darkMode && $route.path !== '/data-management',
+                }"
+                active-class="bg-blue-600 text-white"
+              >
+                Data Management
               </router-link>
             </li>
             <li>

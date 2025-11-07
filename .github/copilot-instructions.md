@@ -1,7 +1,14 @@
 # FCUB CGPA Calculator - AI Coding Agent Instructions
 
 ## Project Overview
-A Progressive Web App (PWA) for calculating semester GPAs and cumulative CGPA for the FCUB CSE Program. Built with Vue 3 Composition API, TypeScript, Tailwind CSS v4, and offline-first architecture using IndexedDB and Workbox.
+A Progressive Web App (PWA) for calculating semester GPAs and cumulative CGPA for FCUB CSE Program students in Bangladesh. Built with Vue 3 Composition API, TypeScript, Tailwind CSS v4, and offline-first architecture using IndexedDB and Workbox.
+
+### Key Features for Bangladesh Students
+- **Bangladesh Grading System**: Automatic classification (First Class with Distinction, First Class, Second Class, Third Class, Pass)
+- **Required GPA Calculator**: Calculate what GPA is needed in remaining semesters to achieve target CGPA
+- **Performance Analytics**: Grade distribution, semester trends, and performance statistics
+- **Data Portability**: Export/import data for backup and device transfer
+- **Offline-First**: Full functionality without internet connection
 
 ## Architecture & Data Flow
 
@@ -20,10 +27,28 @@ GRADES: [{ letter: 'A+', point: 4.00 }, ...]
 ```
 These are **not** user-editable—they represent fixed FCUB CSE program requirements.
 
+### Bangladesh Grading Classifications
+```typescript
+getClassification(cgpa: number) => {
+  class: 'First Class' | 'Second Class' | 'Third Class' | 'Pass',
+  honor: 'with Distinction' | '',
+  color: 'green' | 'blue' | 'yellow' | 'orange' | 'gray'
+}
+```
+- First Class with Distinction: ≥ 3.50
+- First Class: 3.00 - 3.49
+- Second Class: 2.50 - 2.99
+- Third Class: 2.00 - 2.49
+
 ### Component Communication
 - Views consume Pinia store directly—no props drilling
 - `MainLayout.vue` wraps all views and handles global concerns (navigation, theme, offline indicator)
-- Route-based views: `SemesterGPA.vue` (per-semester calculator), `OverallCGPA.vue` (multi-semester CGPA)
+- Route-based views: 
+  - `SemesterGPA.vue`: Per-semester calculator with course-level grading
+  - `OverallCGPA.vue`: Multi-semester CGPA with semester GPA inputs
+  - `Statistics.vue`: Required GPA calculator, classification info, performance stats
+  - `DataManagement.vue`: Export, import, and clear data functionality
+  - `Developer.vue`: Developer profile and contact form
 
 ## Development Workflow
 
@@ -90,11 +115,12 @@ Database: `fcub-cgpa-calculator` (v1)
 
 ## Common Pitfalls
 
-1. **Don't use localStorage**—all persistence is IndexedDB for PWA best practices
+1. **Don't use localStorage**—all persistence is IndexedDB for PWA best practices (except darkMode preference)
 2. **Don't modify `courseData` or `semesterCredits` at runtime**—these are static curriculum definitions
 3. **Build before testing PWA**—service worker doesn't register in dev mode
 4. **Tailwind v4 differences**: Uses `@tailwindcss/vite` plugin, no `tailwind.config.js` imports in PostCSS
 5. **Dark mode**: Theme is controlled by Pinia store + localStorage, not Tailwind's built-in dark mode toggle
+6. **Bangladesh grading**: Use `getClassification()` helper, not custom logic for class determination
 
 ## File Structure Patterns
 
@@ -102,6 +128,11 @@ Database: `fcub-cgpa-calculator` (v1)
 src/
   stores/          # Pinia stores (domain logic, IndexedDB integration)
   views/           # Route-level components (lazy-loaded)
+    SemesterGPA.vue      # Per-semester calculator
+    OverallCGPA.vue      # Multi-semester CGPA
+    Statistics.vue       # Analytics & required GPA calculator
+    DataManagement.vue   # Export/import/clear data
+    Developer.vue        # Developer profile
   components/
     layout/        # App-level layout components (MainLayout)
     ui/            # shadcn-vue components (Reka UI + CVA)
@@ -125,4 +156,30 @@ src/
 - All logic is in computed properties in `cgpa.ts`
 - `calculateSemesterGPA`: weighted average based on selected semester courses
 - `calculateCGPA`: weighted average across all semesters with saved GPAs
+- `calculateRequiredGPA`: determines needed GPA for remaining semesters to hit target
 - Grade points defined in `GRADES` constant—modify there for grading scale changes
+
+### Adding Statistics/Analytics
+- Use computed properties in store for reactive statistics
+- See `getGradeDistribution`, `getSemesterTrend`, `getGPAStats` as examples
+- Store statistics in Pinia for global access across components
+
+## Data Management Features
+
+### Export/Import Pattern
+```typescript
+// Export: Returns JSON string with version, timestamp, and all data
+const data = store.exportData()
+
+// Import: Accepts JSON string, validates, and saves to IndexedDB
+const result = await store.importData(jsonString)
+
+// Clear: Removes all data from memory and IndexedDB
+const result = await store.clearAllData()
+```
+
+### Bangladesh-Specific Features
+- **Classification Display**: Use `getClassification(cgpa)` for consistent color-coded class display
+- **Required GPA**: `calculateRequiredGPA(targetCGPA)` returns required GPA, achievability, and helpful messages
+- **Performance Trends**: `getSemesterTrend` and `getGPAStats` provide analytics for student performance tracking
+

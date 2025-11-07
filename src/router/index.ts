@@ -14,6 +14,18 @@ const routes = [
     meta: { title: 'Overall CGPA Calculator' }
   },
   {
+    path: '/statistics',
+    name: 'Statistics',
+    component: () => import('@/views/Statistics.vue'),
+    meta: { title: 'Statistics & Tools' }
+  },
+  {
+    path: '/data-management',
+    name: 'DataManagement',
+    component: () => import('@/views/DataManagement.vue'),
+    meta: { title: 'Data Management' }
+  },
+  {
     path: '/developer',
     name: 'Developer',
     component: () => import('@/views/Developer.vue'),

@@ -341,6 +341,213 @@ export const useCGPAStore = defineStore('cgpa', () => {
     return semesterCredits[semester.toString()] || 0
   }
 
+  // Export all data as JSON
+  const exportData = () => {
+    const data = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      courseGrades: courseGrades.value,
+      semesterGPAs: semesterGPAs.value,
+      darkMode: darkMode.value
+    }
+    return JSON.stringify(data, null, 2)
+  }
+
+  // Import data from JSON
+  const importData = async (jsonData: string) => {
+    try {
+      const data = JSON.parse(jsonData)
+      
+      // Validate data structure
+      if (!data.version || !data.courseGrades || !data.semesterGPAs) {
+        throw new Error('Invalid data format')
+      }
+      
+      // Import course grades
+      courseGrades.value = data.courseGrades
+      
+      // Import semester GPAs
+      semesterGPAs.value = data.semesterGPAs
+      
+      // Import dark mode preference
+      if (data.darkMode !== undefined) {
+        darkMode.value = data.darkMode
+        localStorage.setItem('darkMode', JSON.stringify(darkMode.value))
+        
+        if (darkMode.value) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      }
+      
+      // Save to IndexedDB
+      const db = await initDB()
+      
+      // Save course grades
+      Object.entries(courseGrades.value).forEach(async ([code, grade]) => {
+        await db.put('courseGrades', { id: code, grade })
+      })
+      
+      // Save semester GPAs
+      Object.entries(semesterGPAs.value).forEach(async ([sem, gpa]) => {
+        await db.put('semesterGPAs', { semester: parseInt(sem), gpa })
+      })
+      
+      return { success: true, message: 'Data imported successfully' }
+    } catch (error) {
+      console.error('Failed to import data:', error)
+      return { success: false, message: 'Failed to import data. Please check the file format.' }
+    }
+  }
+
+  // Clear all data
+  const clearAllData = async () => {
+    try {
+      // Clear in-memory data
+      courseGrades.value = {}
+      semesterGPAs.value = {}
+      
+      // Clear IndexedDB
+      const db = await initDB()
+      await db.clear('courseGrades')
+      await db.clear('semesterGPAs')
+      
+      return { success: true, message: 'All data cleared successfully' }
+    } catch (error) {
+      console.error('Failed to clear data:', error)
+      return { success: false, message: 'Failed to clear data' }
+    }
+  }
+
+  // Get Bangladesh university classification based on CGPA
+  const getClassification = (cgpa: number) => {
+    if (cgpa >= 3.50) return { class: 'First Class', honor: 'with Distinction', color: 'green' }
+    if (cgpa >= 3.00) return { class: 'First Class', honor: '', color: 'green' }
+    if (cgpa >= 2.50) return { class: 'Second Class', honor: '', color: 'blue' }
+    if (cgpa >= 2.00) return { class: 'Third Class', honor: '', color: 'yellow' }
+    if (cgpa > 0) return { class: 'Pass', honor: '', color: 'orange' }
+    return { class: 'N/A', honor: '', color: 'gray' }
+  }
+
+  // Calculate required GPA for remaining semesters to achieve target CGPA
+  const calculateRequiredGPA = (targetCGPA: number) => {
+    let completedCredits = 0
+    let earnedPoints = 0
+    
+    // Calculate completed credits and earned grade points
+    semesters.forEach(sem => {
+      if (semesterGPAs.value[sem]) {
+        const credits = getSemesterCredits(sem)
+        completedCredits += credits
+        earnedPoints += semesterGPAs.value[sem] * credits
+      }
+    })
+    
+    const totalCredits = 162 // Total FCUB CSE program credits
+    const remainingCredits = totalCredits - completedCredits
+    
+    if (remainingCredits <= 0) {
+      return { 
+        requiredGPA: 0, 
+        achievable: false, 
+        message: 'All semesters completed' 
+      }
+    }
+    
+    const totalRequiredPoints = targetCGPA * totalCredits
+    const requiredPoints = totalRequiredPoints - earnedPoints
+    const requiredGPA = requiredPoints / remainingCredits
+    
+    if (requiredGPA > 4.00) {
+      return { 
+        requiredGPA: requiredGPA.toFixed(2), 
+        achievable: false, 
+        message: 'Target CGPA not achievable with remaining credits' 
+      }
+    }
+    
+    if (requiredGPA < 0) {
+      return { 
+        requiredGPA: 0, 
+        achievable: true, 
+        message: 'Target CGPA already achieved or will be exceeded' 
+      }
+    }
+    
+    return { 
+      requiredGPA: requiredGPA.toFixed(2), 
+      achievable: true, 
+      message: `You need an average of ${requiredGPA.toFixed(2)} GPA in remaining semesters`,
+      remainingCredits,
+      completedCredits
+    }
+  }
+
+  // Get grade distribution statistics
+  const getGradeDistribution = computed(() => {
+    const distribution: { [key: string]: number } = {
+      'A+': 0, 'A': 0, 'A-': 0, 'B+': 0, 'B': 0, 'B-': 0, 
+      'C+': 0, 'C': 0, 'D': 0, 'F': 0
+    }
+    
+    Object.values(courseGrades.value).forEach(grade => {
+      if (grade && distribution.hasOwnProperty(grade)) {
+        distribution[grade]++
+      }
+    })
+    
+    return distribution
+  })
+
+  // Get semester performance trend
+  const getSemesterTrend = computed(() => {
+    return semesters
+      .filter(sem => semesterGPAs.value[sem])
+      .map(sem => ({
+        semester: sem,
+        gpa: semesterGPAs.value[sem],
+        credits: getSemesterCredits(sem)
+      }))
+  })
+
+  // Calculate GPA statistics
+  const getGPAStats = computed(() => {
+    const completedSemesters = semesters.filter(sem => semesterGPAs.value[sem])
+    
+    if (completedSemesters.length === 0) {
+      return {
+        highest: 0,
+        lowest: 0,
+        average: 0,
+        trend: 'N/A',
+        completedSemesters: 0
+      }
+    }
+    
+    const gpas = completedSemesters.map(sem => semesterGPAs.value[sem])
+    const highest = Math.max(...gpas)
+    const lowest = Math.min(...gpas)
+    const average = gpas.reduce((a, b) => a + b, 0) / gpas.length
+    
+    // Calculate trend (improving, declining, stable)
+    let trend = 'Stable'
+    if (completedSemesters.length >= 2) {
+      const lastTwo = completedSemesters.slice(-2)
+      const diff = semesterGPAs.value[lastTwo[1]] - semesterGPAs.value[lastTwo[0]]
+      if (diff > 0.1) trend = 'Improving'
+      else if (diff < -0.1) trend = 'Declining'
+    }
+    
+    return {
+      highest: highest.toFixed(2),
+      lowest: lowest.toFixed(2),
+      average: average.toFixed(2),
+      trend,
+      completedSemesters: completedSemesters.length
+    }
+  })
+
   // Return store properties and methods
   return {
     // State
@@ -372,6 +579,14 @@ export const useCGPAStore = defineStore('cgpa', () => {
     toggleDarkMode,
     loadData,
     syncPendingData,
-    getSemesterCredits
+    getSemesterCredits,
+    getClassification,
+    calculateRequiredGPA,
+    getGradeDistribution,
+    getSemesterTrend,
+    getGPAStats,
+    exportData,
+    importData,
+    clearAllData
   }
 })

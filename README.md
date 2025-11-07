@@ -4,8 +4,19 @@ A Progressive Web Application (PWA) for calculating semester GPAs and overall CG
 
 ## Features
 
-- **Semester GPA Calculator**: Calculate GPA for individual semesters
+- **Semester GPA Calculator**: Calculate GPA for individual semesters with course-level grade input
 - **Overall CGPA Calculator**: Calculate cumulative GPA across multiple semesters
+- **Bangladesh Grading System**: Automatic classification (First Class with Distinction, First Class, Second Class, Third Class, Pass)
+- **Required GPA Calculator**: Find out what GPA you need in remaining semesters to achieve your target CGPA
+- **Performance Analytics**: 
+  - Grade distribution statistics
+  - Semester performance trends
+  - Highest, lowest, and average GPA tracking
+  - Performance trend analysis (improving, declining, stable)
+- **Data Management**: 
+  - Export your data as JSON for backup
+  - Import data to restore or transfer between devices
+  - Clear all data with confirmation
 - **Developer Profile**: Information about the developer
 - **PWA Support**: Works offline and can be installed on devices
 - **Responsive Design**: Works on all screen sizes
