@@ -2,6 +2,7 @@
   "name": "FCUB CGPA Calculator - Multi-Department GPA Calculator",
   "short_name": "FCUB CGPA",
   "description": "Offline-first CGPA calculator for Bangladesh university students. Supports 8 departments with semester GPA calculation, overall CGPA tracking, and performance analytics.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -58,6 +59,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-1.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Semester GPA Calculator - Desktop View"
+    },
+    {
+      "src": "/screenshots/screenshot-2.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Overall CGPA Calculator - Desktop View"
+    },
+    {
+      "src": "/screenshots/screenshot-mobile.webp",
+      "sizes": "750x1334",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Mobile Semester GPA Calculator"
+    },
+    {
+      "src": "/screenshots/select-department.webp",
+      "sizes": "750x1334",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Mobile Select Department"
     }
   ],
   "shortcuts": [

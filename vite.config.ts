@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/',
   plugins: [
     vue(), 
     tailwindcss(),
@@ -16,6 +17,7 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['icons/favicon.ico', 'icons/favicon.png', 'icons/favicon.svg', 'icons/android/*.png'],
       manifest: {
+        id: '/',
         name: 'FCUB CGPA Calculator - Multi-Department GPA Calculator',
         short_name: 'FCUB CGPA',
         description: 'Offline-first CGPA calculator for Bangladesh university students. Supports 8 departments with semester GPA calculation, overall CGPA tracking, and performance analytics.',
@@ -107,6 +109,29 @@ export default defineConfig({
             description: 'Change department and preferences',
             url: '/settings',
             icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' }]
+          }
+        ],
+        screenshots: [
+          {
+            src: 'screenshots/screenshot-1.webp',
+            sizes: '1280x720',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: 'FCUB CGPA Calculator - Semester GPA Calculation View showing course grades and GPA calculation'
+          },
+          {
+            src: 'screenshots/screenshot-2.webp',
+            sizes: '1280x720',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: 'FCUB CGPA Calculator - Overall CGPA View with multi-semester tracking and analytics'
+          },
+          {
+            src: 'screenshots/screenshot-mobile.webp',
+            sizes: '750x1334',
+            type: 'image/webp',
+            form_factor: 'narrow',
+            label: 'FCUB CGPA Calculator - Mobile View with responsive design and dark mode support'
           }
         ]
       },
